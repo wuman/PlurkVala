@@ -26,6 +26,12 @@ public class PlurkVala.PlurkClient : GLib.Object {
     public signal void response_deleted(Error? e, string plurk_id, string response_id);
     public signal void karma_received(Error? e, double karma);
     public signal void profile_received(Error? e, Profile? profile);
+    public signal void cliques_received(Error? e, string[] cliques);
+    public signal void clique_users_received(Error? e, string clique_name, UserList? users);
+    public signal void clique_created(Error? e, string clique_name);
+    public signal void clique_renamed(Error? e, string clique_name, string new_name);
+    public signal void user_added_to_clique(Error? e, string clique_name, string user_id);
+    public signal void user_removed_from_clique(Error? e, string clique_name, string user_id);
 
     private static enum Action {
         LOGIN,
@@ -45,7 +51,13 @@ public class PlurkVala.PlurkClient : GLib.Object {
         EDIT_PLURK,
         DELETE_PLURK,
         ADD_RESPONSE,
-        DELETE_RESPONSE;
+        DELETE_RESPONSE,
+        GET_CLIQUES,
+        GET_CLIQUE_USERS,
+        CREATE_CLIQUE,
+        RENAME_CLIQUE,
+        ADD_USER_TO_CLIQUE,
+        REMOVE_USER_FROM_CLIQUE;
     }
 
 
@@ -294,6 +306,34 @@ public class PlurkVala.PlurkClient : GLib.Object {
         });
     }
 
+    public void get_cliques() {
+        Message msg = PlurkApi.get_cliques();
+        session.queue_message(msg, (s, m) => {
+            bool success;
+            Error error = on_request_responded_cb(s, m, Action.GET_CLIQUES, out success);
+            if ( success ) {
+                on_get_cliques_cb(s, m);
+            } else {
+                cliques_received(error, new string[0]);
+            }
+        });
+    }
+
+    public void get_clique_users(string clique_name) {
+        Message msg = PlurkApi.get_clique_users(clique_name);
+        session.queue_message(msg, (s, m) => {
+            bool success;
+            Error error = on_request_responded_cb(s, m, Action.GET_CLIQUE_USERS, out success);
+            if ( success ) {
+                on_get_clique_users_cb(s, m);
+            } else {
+                HashTable<string, string> form_data = Soup.form_decode(m.uri.query);
+                string cliquename = form_data.lookup(PlurkApi.PARAM_CLIQUE_NAME);
+                clique_users_received(error, cliquename, null);
+            }
+        });
+    }
+
     public void get_own_profile() {
         Message msg = PlurkApi.get_own_profile();
         session.queue_message(msg, (s, m) => {
@@ -363,6 +403,12 @@ public class PlurkVala.PlurkClient : GLib.Object {
         case Action.UNMUTE_PLURKS:
         case Action.FAVORITE_PLURKS:
         case Action.UNFAVORITE_PLURKS:
+        case Action.GET_CLIQUES:
+        case Action.GET_CLIQUE_USERS:
+        case Action.CREATE_CLIQUE:
+        case Action.RENAME_CLIQUE:
+        case Action.ADD_USER_TO_CLIQUE:
+        case Action.REMOVE_USER_FROM_CLIQUE:
             int code = (int) PlurkError.from_msg(error_msg);
             error = new Error(PLURK_ERROR_DOMAIN, code, "%s", error_msg);
             break;
@@ -484,6 +530,32 @@ public class PlurkVala.PlurkClient : GLib.Object {
             Error error = new Error(PLURK_ERROR_DOMAIN, PlurkError.JSON_PARSING_ERROR, "%d: %s", e.code, e.message);
             karma_received(error, 0.0);
         }
+    }
+
+    private void on_get_cliques_cb(Session session, Message msg) {
+        string buffer = msg.response_body.flatten().data;
+        try {
+            Parser parser = new Parser();
+            parser.load_from_data(buffer);
+            unowned Json.Array array = parser.get_root().get_array();
+            uint length = array.get_length();
+            string[] cliques = new string[length];
+            for ( int i = 0; i < length; i++ ) {
+                cliques[i] = array.get_string_element(i).dup();
+            }
+            cliques_received(null, cliques);
+        } catch ( Error e ) {
+            Error error = new Error(PLURK_ERROR_DOMAIN, PlurkError.JSON_PARSING_ERROR, "%d: %s", e.code, e.message);
+            cliques_received(error, new string[0]);
+        }
+    }
+
+    private void on_get_clique_users_cb(Session session, Message msg) {
+        string buffer = msg.response_body.flatten().data;
+        HashTable<string, string> form_data = Soup.form_decode(msg.uri.query);
+        string clique_name = form_data.lookup(PlurkApi.PARAM_CLIQUE_NAME);
+        UserList users = new UserList.from_data(buffer);
+        clique_users_received(null, clique_name, users);
     }
 
 }

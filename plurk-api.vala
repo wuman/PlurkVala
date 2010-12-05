@@ -80,8 +80,8 @@ public class PlurkVala.PlurkApi : GLib.Object {
     private static const string CLIQUES_GET = "Cliques/getClique";
     private static const string CLIQUES_CREATE = "Cliques/createClique";
     private static const string CLIQUES_RENAME = "Cliques/renameClique";
-    private static const string CLIQUES_ADD_FRIENDS = "Cliques/add";
-    private static const string CLIQUES_REMOVE_FRIENDS = "Cliques/remove";
+    private static const string CLIQUES_ADD_FRIEND = "Cliques/add";
+    private static const string CLIQUES_REMOVE_FRIEND = "Cliques/remove";
 
     public static const string PARAM_API_KEY = "api_key";
     public static const string PARAM_USERNAME = "username";
@@ -107,6 +107,8 @@ public class PlurkVala.PlurkApi : GLib.Object {
     public static const string PARAM_QUERY = "query";
     public static const string PARAM_MINIMAL_DATA = "minimal_data";
     public static const string PARAM_LANGUAGE = "lang";
+    public static const string PARAM_CLIQUE_NAME = "clique_name";
+    public static const string PARAM_NEW_NAME = "new_name";
 
     public static enum Language {
         EN,
@@ -714,6 +716,48 @@ public class PlurkVala.PlurkApi : GLib.Object {
     public static Message get_emoticons() {
         unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, EMOTICONS_GET, params));
+        free((void *) params);
+        return msg;
+    }
+
+    public static Message get_cliques() {
+        unowned string params = Soup.form_encode(PARAM_API_KEY, API_KEY, null);
+        Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, CLIQUES_GET_ALL, params));
+        free((void *) params);
+        return msg;
+    }
+
+    public static Message get_clique_users(string clique_name) {
+        unowned string params = Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_CLIQUE_NAME, clique_name, null);
+        Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, CLIQUES_GET, params));
+        free((void *) params);
+        return msg;
+    }
+
+    public static Message create_clique(string clique_name) {
+        unowned string params = Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_CLIQUE_NAME, clique_name, null);
+        Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, CLIQUES_CREATE, params));
+        free((void *) params);
+        return msg;
+    }
+
+    public static Message rename_clique(string clique_name, string new_name) {
+        unowned string params = Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_CLIQUE_NAME, clique_name, PARAM_NEW_NAME, new_name, null);
+        Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, CLIQUES_RENAME, params));
+        free((void *) params);
+        return msg;
+    }
+
+    public static Message add_user_to_clique(string clique_name, string user_id) {
+        unowned string params = Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_CLIQUE_NAME, clique_name, PARAM_USER_ID, user_id, null);
+        Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, CLIQUES_ADD_FRIEND, params));
+        free((void *) params);
+        return msg;
+    }
+
+    public static Message remove_user_from_clique(string clique_name, string user_id) {
+        unowned string params = Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_CLIQUE_NAME, clique_name, PARAM_USER_ID, user_id, null);
+        Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, CLIQUES_REMOVE_FRIEND, params));
         free((void *) params);
         return msg;
     }
