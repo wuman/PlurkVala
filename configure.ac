@@ -4,7 +4,7 @@
 AC_PREREQ([2.65])
 AC_INIT([libplurk-vala], [0.0], [http://www.plurk.com/wuman])
 
-AM_MAINTAINER_MODE
+AM_MAINTAINER_MODE([enable])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIR([m4])

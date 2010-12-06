@@ -16,3 +16,19 @@ libplurk_la_SOURCES = \
 libplurk_la_CPPFLAGS = @PLURK_CFLAGS@
 libplurk_la_LIBADD = @PLURK_LIBS@
 libplurk_la_VALAFLAGS = @VALA_PACKAGES@
+
+dist-hook: plurk.h
+
+distcheck-hook: plurk.h
+
+install-data-hook: plurk.h
+	test -d $(DESTDIR)$(includedir) || mkdir -p $(DESTDIR)$(includedir)
+	cp $(srcdir)/plurk.h $(DESTDIR)$(includedir)
+
+uninstall-local:
+	rm -f $(DESTDIR)$(includedir)/plurk.h
+
+plurk.h:
+	valac $(VALA_PACKAGES) $(srcdir)/*.vala -C -H $(srcdir)/plurk.h
+
+EXTRA_DIST = plurk.h
