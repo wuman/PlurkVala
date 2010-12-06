@@ -334,6 +334,17 @@ public class PlurkVala.PlurkClient : GLib.Object {
         });
     }
 
+    public void create_clique(string clique_name) {
+        Message msg = PlurkApi.create_clique(clique_name);
+        session.queue_message(msg, (s, m) => {
+            bool success;
+            Error error = on_request_responded_cb(s, m, Action.CREATE_CLIQUE, out success);
+            HashTable<string, string> form_data = Soup.form_decode(m.uri.query);
+            string cliquename = form_data.lookup(PlurkApi.PARAM_CLIQUE_NAME);
+            clique_created(success ? null : error, cliquename);
+        });
+    }
+
     public void get_own_profile() {
         Message msg = PlurkApi.get_own_profile();
         session.queue_message(msg, (s, m) => {
