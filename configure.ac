@@ -26,7 +26,8 @@ PKG_CHECK_MODULES([JSON], [json-glib-1.0], [
                    PLURK_CFLAGS="$PLURK_CFLAGS $JSON_CFLAGS"
                    PLURK_LIBS="$PLURK_LIBS $JSON_LIBS"
                    ], [AC_MSG_ERROR([$PACKAGE_NAME depends on json-glib-1.0])])
-VALA_PACKAGES="--pkg libsoup-2.4 --pkg json-glib-1.0"
+VALA_DEPS="libsoup-2.4 json-glib-1.0"
+VALA_FLAGS="--pkg libsoup-2.4 --pkg json-glib-1.0"
 
 # Checks for header files.
 
@@ -36,10 +37,12 @@ VALA_PACKAGES="--pkg libsoup-2.4 --pkg json-glib-1.0"
 
 AC_SUBST(PLURK_LIBS)
 AC_SUBST(PLURK_CFLAGS)
-AC_SUBST(VALA_PACKAGES)
+AC_SUBST(VALA_FLAGS)
+AC_SUBST(VALA_DEPS)
 
 AC_CONFIG_FILES([
                  Makefile
                  plurk.pc
+                 plurk.deps
                  ])
 AC_OUTPUT
