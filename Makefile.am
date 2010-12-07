@@ -36,7 +36,8 @@ plurk.vapi: $(libplurk_la_SOURCES) plurk.h
 install-data-hook: plurk.h
 	test -d $(DESTDIR)$(includedir) || mkdir -p $(DESTDIR)$(includedir)
 	cp $(srcdir)/plurk.h $(DESTDIR)$(includedir)
-	sed  -i 's/ /\n/' $(DESTDIR)$(vapidir)/plurk.deps
+	:> $(DESTDIR)$(vapidir)/plurk.deps
+	for i in @VALA_DEPS@; do echo $$i >> $(DESTDIR)$(vapidir)/plurk.deps; done
 
 uninstall-local:
 	rm -f $(DESTDIR)$(includedir)/plurk.h
