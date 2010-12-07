@@ -3,11 +3,10 @@ using Json;
 
 public class PlurkVala.PlurkClient : GLib.Object {
 
-    private static const string PLURKVALA_USER_AGENT = "PlurkVala 0.1";
+    private static const string PLURKVALA_USER_AGENT = "PlurkVala 0.2";
     private static const int SESSION_MAX_CONNS = 1;
 
-    private string username;
-    private string password;
+    private PlurkApi plurk_api;
     private Profile profile;
     private string user_agent = PLURKVALA_USER_AGENT;
     private Session session;
@@ -64,28 +63,22 @@ public class PlurkVala.PlurkClient : GLib.Object {
     /*
      * Constructors
      */
-    public PlurkClient() {
+    public PlurkClient(string api_key) {
+        plurk_api = new PlurkApi(api_key);
+        prepare_session();
+    }
+
+    private void prepare_session() {
         cookies = new CookieJar();
         session = new SessionAsync.with_options(
-            "user-agent", user_agent, 
-            Soup.SESSION_MAX_CONNS, SESSION_MAX_CONNS, 
+            "user-agent", user_agent,
+            Soup.SESSION_MAX_CONNS, SESSION_MAX_CONNS,
             null);
         session.add_feature = cookies;
     }
 
-    public PlurkClient.for_user(string username, string password) {
-        this();
-        this.username = username.dup();
-        this.password = password.dup();
-    }
-
-    public void get_account(out string username, out string password) {
-        username = this.username.dup();
-        password = this.password.dup();
-    }
-
-    public void login(bool no_data = false) {
-        Message msg = PlurkApi.login(username, password, no_data);
+    public void login(string username, string password, bool no_data = false) {
+        Message msg = plurk_api.login(username, password, no_data);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.LOGIN, out success);
@@ -104,7 +97,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void logout() {
-        Message msg = PlurkApi.logout();
+        Message msg = plurk_api.logout();
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.LOGOUT, out success);
@@ -117,7 +110,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
             return;
         }
 
-        Message msg = PlurkApi.mute_plurks(ids);
+        Message msg = plurk_api.mute_plurks(ids);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.MUTE_PLURKS, out success);
@@ -134,7 +127,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
             return;
         }
 
-        Message msg = PlurkApi.unmute_plurks(ids);
+        Message msg = plurk_api.unmute_plurks(ids);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.UNMUTE_PLURKS, out success);
@@ -151,7 +144,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
             return;
         }
 
-        Message msg = PlurkApi.favorite_plurks(ids);
+        Message msg = plurk_api.favorite_plurks(ids);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.FAVORITE_PLURKS, out success);
@@ -168,7 +161,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
             return;
         }
 
-        Message msg = PlurkApi.unfavorite_plurks(ids);
+        Message msg = plurk_api.unfavorite_plurks(ids);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.UNFAVORITE_PLURKS, out success);
@@ -181,7 +174,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void get_timeline(Soup.Date? offset, int limit = 0, PlurkApi.PlurkFilterType filter = PlurkApi.PlurkFilterType.ALL) {
-        Message msg = PlurkApi.timeline_get_plurks(offset, limit, filter);
+        Message msg = plurk_api.timeline_get_plurks(offset, limit, filter);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.GET_TIMELINE, out success);
@@ -194,7 +187,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void get_unread_timeline(Soup.Date? offset, int limit = 0) {
-        Message msg = PlurkApi.timeline_get_unread_plurks(offset, limit);
+        Message msg = plurk_api.timeline_get_unread_plurks(offset, limit);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.GET_UNREAD_TIMELINE, out success);
@@ -207,7 +200,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void get_plurk(string plurk_id) {
-        Message msg = PlurkApi.timeline_get_plurk(plurk_id);
+        Message msg = plurk_api.timeline_get_plurk(plurk_id);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.GET_PLURK, out success);
@@ -220,7 +213,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void get_responses(string plurk_id, int from_response = 0) {
-        Message msg = PlurkApi.get_responses(plurk_id, from_response);
+        Message msg = plurk_api.get_responses(plurk_id, from_response);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.GET_RESPONSES, out success);
@@ -237,7 +230,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
             string[]? limited_to,
             Plurk.NoCommentsValue no_comments = Plurk.NoCommentsValue.RESPONSES_ENABLED_FOR_ALL,
             PlurkApi.Language language = PlurkApi.Language.EN) {
-        Message msg = PlurkApi.add_plurk(content, qualifier, limited_to, no_comments, language);
+        Message msg = plurk_api.add_plurk(content, qualifier, limited_to, no_comments, language);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.ADD_PLURK, out success);
@@ -250,7 +243,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void edit_plurk(string plurk_id, string content) {
-        Message msg = PlurkApi.edit_plurk(plurk_id, content);
+        Message msg = plurk_api.edit_plurk(plurk_id, content);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.EDIT_PLURK, out success);
@@ -263,7 +256,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void delete_plurk(string plurk_id) {
-        Message msg = PlurkApi.delete_plurk(plurk_id);
+        Message msg = plurk_api.delete_plurk(plurk_id);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.DELETE_PLURK, out success);
@@ -272,7 +265,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void add_response(string plurk_id, string content, Plurk.Qualifier qualifier = Plurk.Qualifier.DEFAULT) {
-        Message msg = PlurkApi.add_response(plurk_id, content, qualifier);
+        Message msg = plurk_api.add_response(plurk_id, content, qualifier);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.ADD_RESPONSE, out success);
@@ -285,7 +278,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void delete_response(string plurk_id, string response_id) {
-        Message msg = PlurkApi.delete_response(plurk_id, response_id);
+        Message msg = plurk_api.delete_response(plurk_id, response_id);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.DELETE_RESPONSE, out success);
@@ -294,7 +287,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void get_karma() {
-        Message msg = PlurkApi.get_karma_stats();
+        Message msg = plurk_api.get_karma_stats();
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.GET_KARMA_STATS, out success);
@@ -307,7 +300,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void get_cliques() {
-        Message msg = PlurkApi.get_cliques();
+        Message msg = plurk_api.get_cliques();
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.GET_CLIQUES, out success);
@@ -320,7 +313,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void get_clique_users(string clique_name) {
-        Message msg = PlurkApi.get_clique_users(clique_name);
+        Message msg = plurk_api.get_clique_users(clique_name);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.GET_CLIQUE_USERS, out success);
@@ -335,7 +328,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void create_clique(string clique_name) {
-        Message msg = PlurkApi.create_clique(clique_name);
+        Message msg = plurk_api.create_clique(clique_name);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.CREATE_CLIQUE, out success);
@@ -346,7 +339,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void rename_clique(string clique_name, string new_name) {
-        Message msg = PlurkApi.rename_clique(clique_name, new_name);
+        Message msg = plurk_api.rename_clique(clique_name, new_name);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.RENAME_CLIQUE, out success);
@@ -358,7 +351,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void add_user_to_clique(string clique_name, string user_id) {
-        Message msg = PlurkApi.add_user_to_clique(clique_name, user_id);
+        Message msg = plurk_api.add_user_to_clique(clique_name, user_id);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.ADD_USER_TO_CLIQUE, out success);
@@ -370,7 +363,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void remove_user_from_clique(string clique_name, string user_id) {
-        Message msg = PlurkApi.remove_user_from_clique(clique_name, user_id);
+        Message msg = plurk_api.remove_user_from_clique(clique_name, user_id);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.REMOVE_USER_FROM_CLIQUE, out success);
@@ -382,7 +375,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void get_own_profile() {
-        Message msg = PlurkApi.get_own_profile();
+        Message msg = plurk_api.get_own_profile();
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.GET_OWN_PROFILE, out success);
@@ -395,7 +388,7 @@ public class PlurkVala.PlurkClient : GLib.Object {
     }
 
     public void get_public_profile(string user_id) {
-        Message msg = PlurkApi.get_public_profile(user_id);
+        Message msg = plurk_api.get_public_profile(user_id);
         session.queue_message(msg, (s, m) => {
             bool success;
             Error error = on_request_responded_cb(s, m, Action.GET_PUBLIC_PROFILE, out success);

@@ -3,10 +3,7 @@ using Json;
 
 public class PlurkVala.PlurkApi : GLib.Object {
 
-    /*
-     * IMPORTANT: Make sure you put your own API key here
-     */
-    private static const string API_KEY = "Here is where you should put your own API key.";
+    private string api_key;
 
     private static const string METHOD_GET = "GET";
     private static const string METHOD_POST = "POST";
@@ -325,9 +322,13 @@ public class PlurkVala.PlurkApi : GLib.Object {
         }
     }
 
-    public static Message login(string username, string password, bool no_data = false) {
+    public PlurkApi(string api_key) {
+        this.api_key = api_key;
+    }
+
+    public Message login(string username, string password, bool no_data = false) {
         HashTable<string, string> hash = new HashTable<string, string>(GLib.str_hash, GLib.str_equal);
-        hash.insert(PARAM_API_KEY, API_KEY);
+        hash.insert(PARAM_API_KEY, api_key);
         hash.insert(PARAM_USERNAME, username);
         hash.insert(PARAM_PASSWORD, password);
         if ( no_data ) {
@@ -339,61 +340,61 @@ public class PlurkVala.PlurkApi : GLib.Object {
         return msg;
     }
 
-    public static Message logout() {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, null);
+    public Message logout() {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, USER_LOGOUT, params));
         free((void *) params);
         return msg;
     }
     
-    public static Message get_karma_stats() {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, null);
+    public Message get_karma_stats() {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, USER_GET_KARMA_STATS, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message get_own_profile() {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, null);
+    public Message get_own_profile() {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, PROFILE_GET_OWN, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message get_public_profile(string nickname) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_USER_ID, nickname, null);
+    public Message get_public_profile(string nickname) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_USER_ID, nickname, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, PROFILE_GET_PUBLIC, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message polling_get_plurks(Soup.Date offset, int limit = 0) {
+    public Message polling_get_plurks(Soup.Date offset, int limit = 0) {
         if ( limit <= 0 ) {
             limit = 50;
         }
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_OFFSET, offset.to_string(DateFormat.ISO8601_XMLRPC), PARAM_LIMIT, limit, null);
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_OFFSET, offset.to_string(DateFormat.ISO8601_XMLRPC), PARAM_LIMIT, limit, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, POLLING_GET_PLURKS, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message polling_get_unread_count() {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, null);
+    public Message polling_get_unread_count() {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, POLLING_GET_UNREAD_COUNT, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message timeline_get_plurk(string plurk_id) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_PLURK_ID, plurk_id, null);
+    public Message timeline_get_plurk(string plurk_id) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_PLURK_ID, plurk_id, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, TIMELINE_GET_PLURK, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message timeline_get_plurks(Soup.Date? offset, int limit = 0, PlurkFilterType filter = PlurkFilterType.ALL) {
+    public Message timeline_get_plurks(Soup.Date? offset, int limit = 0, PlurkFilterType filter = PlurkFilterType.ALL) {
         HashTable<string, string> hash = new HashTable<string, string>(GLib.str_hash, GLib.str_equal);
-        hash.insert(PARAM_API_KEY, API_KEY);
+        hash.insert(PARAM_API_KEY, api_key);
         if ( offset != null ) {
             hash.insert(PARAM_OFFSET, offset.to_string(DateFormat.ISO8601_XMLRPC));
         }
@@ -413,9 +414,9 @@ public class PlurkVala.PlurkApi : GLib.Object {
         return msg;
     }
 
-    public static Message timeline_get_unread_plurks(Soup.Date? offset, int limit = 0) {
+    public Message timeline_get_unread_plurks(Soup.Date? offset, int limit = 0) {
         HashTable<string, string> hash = new HashTable<string, string>(GLib.str_hash, GLib.str_equal);
-        hash.insert(PARAM_API_KEY, API_KEY);
+        hash.insert(PARAM_API_KEY, api_key);
         if ( offset != null ) {
             hash.insert(PARAM_OFFSET, offset.to_string(DateFormat.ISO8601_XMLRPC));
         }
@@ -428,13 +429,13 @@ public class PlurkVala.PlurkApi : GLib.Object {
         return msg;
     }
 
-    public static Message add_plurk(string content, 
+    public Message add_plurk(string content, 
             Plurk.Qualifier qualifier = Plurk.Qualifier.DEFAULT, 
             string[]? limited_to, 
             Plurk.NoCommentsValue no_comments = Plurk.NoCommentsValue.RESPONSES_ENABLED_FOR_ALL,
             Language language = Language.EN) {
         HashTable<string, string> hash = new HashTable<string, string>(GLib.str_hash, GLib.str_equal);
-        hash.insert(PARAM_API_KEY, API_KEY);
+        hash.insert(PARAM_API_KEY, api_key);
         hash.insert(PARAM_CONTENT, content);
         hash.insert(PARAM_QUALIFIER, qualifier.to_string());
 
@@ -458,56 +459,56 @@ public class PlurkVala.PlurkApi : GLib.Object {
         return msg;
     }
 
-    public static Message delete_plurk(string plurk_id) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_PLURK_ID, plurk_id, null);
+    public Message delete_plurk(string plurk_id) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_PLURK_ID, plurk_id, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, TIMELINE_DELETE_PLURK, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message edit_plurk(string plurk_id, string content) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_PLURK_ID, plurk_id, PARAM_CONTENT, content, null);
+    public Message edit_plurk(string plurk_id, string content) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_PLURK_ID, plurk_id, PARAM_CONTENT, content, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, TIMELINE_EDIT_PLURK, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message mute_plurks(string[] ids) {
+    public Message mute_plurks(string[] ids) {
         string json = json_string_from_string_array(ids);
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_IDS, json, null);
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_IDS, json, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, TIMELINE_MUTE_PLURKS, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message unmute_plurks(string[] ids) {
+    public Message unmute_plurks(string[] ids) {
         string json = json_string_from_string_array(ids);
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_IDS, json, null);
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_IDS, json, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, TIMELINE_UNMUTE_PLURKS, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message favorite_plurks(string[] ids) {
+    public Message favorite_plurks(string[] ids) {
         string json = json_string_from_string_array(ids);
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_IDS, json, null);
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_IDS, json, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, TIMELINE_FAVORITE_PLURKS, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message unfavorite_plurks(string[] ids) {
+    public Message unfavorite_plurks(string[] ids) {
         string json = json_string_from_string_array(ids);
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_IDS, json, null);
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_IDS, json, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, TIMELINE_UNFAVORITE_PLURKS, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message mark_plurks_as_read(string[] ids, bool note_position = false) {
+    public Message mark_plurks_as_read(string[] ids, bool note_position = false) {
         string json = json_string_from_string_array(ids);
         HashTable<string, string> hash = new HashTable<string, string>(GLib.str_hash, GLib.str_equal);
-        hash.insert(PARAM_API_KEY, API_KEY);
+        hash.insert(PARAM_API_KEY, api_key);
         hash.insert(PARAM_IDS, json);
         if ( note_position ) {
             hash.insert(PARAM_NOTE_POSITION, "true");
@@ -537,31 +538,31 @@ public class PlurkVala.PlurkApi : GLib.Object {
         return json;
     }
 
-    public static Message get_responses(string plurk_id, uint from_response = 0) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_PLURK_ID, plurk_id, PARAM_FROM_RESPONSE, from_response.to_string(), null);
+    public Message get_responses(string plurk_id, uint from_response = 0) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_PLURK_ID, plurk_id, PARAM_FROM_RESPONSE, from_response.to_string(), null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, RESPONSES_GET, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message add_response(string plurk_id, string content, Plurk.Qualifier qualifier = Plurk.Qualifier.DEFAULT) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_PLURK_ID, plurk_id, PARAM_CONTENT, content, PARAM_QUALIFIER, qualifier.to_string(), null);
+    public Message add_response(string plurk_id, string content, Plurk.Qualifier qualifier = Plurk.Qualifier.DEFAULT) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_PLURK_ID, plurk_id, PARAM_CONTENT, content, PARAM_QUALIFIER, qualifier.to_string(), null);
         Message msg = new Message(METHOD_POST, API_BASE_URL + RESPONSES_ADD);
         msg.set_request(FORM_MIME_TYPE_URLENCODED, MemoryUse.COPY, params, params.size());
         free((void *) params);
         return msg;
     }
 
-    public static Message delete_response(string plurk_id, string response_id) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_PLURK_ID, plurk_id, PARAM_RESPONSE_ID, response_id, null);
+    public Message delete_response(string plurk_id, string response_id) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_PLURK_ID, plurk_id, PARAM_RESPONSE_ID, response_id, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, RESPONSES_DELETE, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message get_friends(string user_id, int offset = 0) {
+    public Message get_friends(string user_id, int offset = 0) {
         HashTable<string, string> hash = new HashTable<string, string>(GLib.str_hash, GLib.str_equal);
-        hash.insert(PARAM_API_KEY, API_KEY);
+        hash.insert(PARAM_API_KEY, api_key);
         hash.insert(PARAM_USER_ID, user_id);
         if ( offset > 0 ) {
             hash.insert(PARAM_OFFSET, offset.to_string());
@@ -572,9 +573,9 @@ public class PlurkVala.PlurkApi : GLib.Object {
         return msg;
     }
 
-    public static Message get_fans(string user_id, int offset = 0) {
+    public Message get_fans(string user_id, int offset = 0) {
         HashTable<string, string> hash = new HashTable<string, string>(GLib.str_hash, GLib.str_equal);
-        hash.insert(PARAM_API_KEY, API_KEY);
+        hash.insert(PARAM_API_KEY, api_key);
         hash.insert(PARAM_USER_ID, user_id);
         if ( offset > 0 ) {
             hash.insert(PARAM_OFFSET, offset.to_string());
@@ -585,9 +586,9 @@ public class PlurkVala.PlurkApi : GLib.Object {
         return msg;
     }
 
-    public static Message get_followings(int offset = 0) {
+    public Message get_followings(int offset = 0) {
         HashTable<string, string> hash = new HashTable<string, string>(GLib.str_hash, GLib.str_equal);
-        hash.insert(PARAM_API_KEY, API_KEY);
+        hash.insert(PARAM_API_KEY, api_key);
         if ( offset > 0 ) {
             hash.insert(PARAM_OFFSET, offset.to_string());
         }
@@ -597,97 +598,97 @@ public class PlurkVala.PlurkApi : GLib.Object {
         return msg;
     }
 
-    public static Message become_friends_with(string friend_id) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_FRIEND_ID, friend_id, null);
+    public Message become_friends_with(string friend_id) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_FRIEND_ID, friend_id, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, FRIEND_REQUEST, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message remove_friend(string friend_id) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_FRIEND_ID, friend_id, null);
+    public Message remove_friend(string friend_id) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_FRIEND_ID, friend_id, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, FRIEND_REMOVE, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message become_fan(string fan_id) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_FAN_ID, fan_id, null);
+    public Message become_fan(string fan_id) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_FAN_ID, fan_id, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, FAN_REQUEST, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message set_following(string user_id, bool follow) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_USER_ID, user_id, PARAM_FOLLOW, follow.to_string(), null);
+    public Message set_following(string user_id, bool follow) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_USER_ID, user_id, PARAM_FOLLOW, follow.to_string(), null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, FOLLOWING_SET, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message get_completion() {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, null);
+    public Message get_completion() {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, COMPLETION_GET, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message get_active_alerts() {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, null);
+    public Message get_active_alerts() {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, ALERTS_GET_ACTIVE, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message get_history_alerts() {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, null);
+    public Message get_history_alerts() {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, ALERTS_GET_HISTORY, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message add_user_as_fan(string user_id) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_USER_ID, user_id, null);
+    public Message add_user_as_fan(string user_id) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_USER_ID, user_id, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, ALERTS_ADD_AS_FAN, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message add_all_as_fans() {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, null);
+    public Message add_all_as_fans() {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, null);
         Message msg = new Message(METHOD_POST, API_BASE_URL + ALERTS_ADD_ALL_AS_FANS);
         msg.set_request(FORM_MIME_TYPE_URLENCODED, MemoryUse.COPY, params, params.size());
         free((void *) params);
         return msg;
     }
 
-    public static Message add_all_as_friends() {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, null);
+    public Message add_all_as_friends() {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, null);
         Message msg = new Message(METHOD_POST, API_BASE_URL + ALERTS_ADD_ALL_AS_FRIENDS);
         msg.set_request(FORM_MIME_TYPE_URLENCODED, MemoryUse.COPY, params, params.size());
         free((void *) params);
         return msg;
     }
 
-    public static Message accept_user_as_friend(string user_id) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_USER_ID, user_id, null);
+    public Message accept_user_as_friend(string user_id) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_USER_ID, user_id, null);
         Message msg = new Message(METHOD_POST, API_BASE_URL + ALERTS_ACCEPT_FRIENDSHIP);
         msg.set_request(FORM_MIME_TYPE_URLENCODED, MemoryUse.COPY, params, params.size());
         free((void *) params);
         return msg;
     }
 
-    public static Message deny_user_friendship(string user_id) {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_USER_ID, user_id, null);
+    public Message deny_user_friendship(string user_id) {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, PARAM_USER_ID, user_id, null);
         Message msg = new Message(METHOD_POST, API_BASE_URL + ALERTS_DENY_FRIENDSHIP);
         msg.set_request(FORM_MIME_TYPE_URLENCODED, MemoryUse.COPY, params, params.size());
         free((void *) params);
         return msg;
     }
 
-    public static Message search_plurks(string query, string? plurk_id) {
+    public Message search_plurks(string query, string? plurk_id) {
         HashTable<string, string> hash = new HashTable<string, string>(GLib.str_hash, GLib.str_equal);
-        hash.insert(PARAM_API_KEY, API_KEY);
+        hash.insert(PARAM_API_KEY, api_key);
         hash.insert(PARAM_QUERY, query);
         if ( plurk_id != null ) {
             hash.insert(PARAM_OFFSET, plurk_id);
@@ -699,9 +700,9 @@ public class PlurkVala.PlurkApi : GLib.Object {
         return msg;
     }
 
-    public static Message search_users(string query, int offset = 0) {
+    public Message search_users(string query, int offset = 0) {
         HashTable<string, string> hash = new HashTable<string, string>(GLib.str_hash, GLib.str_equal);
-        hash.insert(PARAM_API_KEY, API_KEY);
+        hash.insert(PARAM_API_KEY, api_key);
         hash.insert(PARAM_QUERY, query);
         if ( offset > 0 ) {
             hash.insert(PARAM_OFFSET, offset.to_string());
@@ -713,50 +714,50 @@ public class PlurkVala.PlurkApi : GLib.Object {
         return msg;
     }
 
-    public static Message get_emoticons() {
-        unowned string params =  Soup.form_encode(PARAM_API_KEY, API_KEY, null);
+    public Message get_emoticons() {
+        unowned string params =  Soup.form_encode(PARAM_API_KEY, api_key, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, EMOTICONS_GET, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message get_cliques() {
-        unowned string params = Soup.form_encode(PARAM_API_KEY, API_KEY, null);
+    public Message get_cliques() {
+        unowned string params = Soup.form_encode(PARAM_API_KEY, api_key, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, CLIQUES_GET_ALL, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message get_clique_users(string clique_name) {
-        unowned string params = Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_CLIQUE_NAME, clique_name, null);
+    public Message get_clique_users(string clique_name) {
+        unowned string params = Soup.form_encode(PARAM_API_KEY, api_key, PARAM_CLIQUE_NAME, clique_name, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, CLIQUES_GET, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message create_clique(string clique_name) {
-        unowned string params = Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_CLIQUE_NAME, clique_name, null);
+    public Message create_clique(string clique_name) {
+        unowned string params = Soup.form_encode(PARAM_API_KEY, api_key, PARAM_CLIQUE_NAME, clique_name, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, CLIQUES_CREATE, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message rename_clique(string clique_name, string new_name) {
-        unowned string params = Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_CLIQUE_NAME, clique_name, PARAM_NEW_NAME, new_name, null);
+    public Message rename_clique(string clique_name, string new_name) {
+        unowned string params = Soup.form_encode(PARAM_API_KEY, api_key, PARAM_CLIQUE_NAME, clique_name, PARAM_NEW_NAME, new_name, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, CLIQUES_RENAME, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message add_user_to_clique(string clique_name, string user_id) {
-        unowned string params = Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_CLIQUE_NAME, clique_name, PARAM_USER_ID, user_id, null);
+    public Message add_user_to_clique(string clique_name, string user_id) {
+        unowned string params = Soup.form_encode(PARAM_API_KEY, api_key, PARAM_CLIQUE_NAME, clique_name, PARAM_USER_ID, user_id, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, CLIQUES_ADD_FRIEND, params));
         free((void *) params);
         return msg;
     }
 
-    public static Message remove_user_from_clique(string clique_name, string user_id) {
-        unowned string params = Soup.form_encode(PARAM_API_KEY, API_KEY, PARAM_CLIQUE_NAME, clique_name, PARAM_USER_ID, user_id, null);
+    public Message remove_user_from_clique(string clique_name, string user_id) {
+        unowned string params = Soup.form_encode(PARAM_API_KEY, api_key, PARAM_CLIQUE_NAME, clique_name, PARAM_USER_ID, user_id, null);
         Message msg = new Message(METHOD_GET, "%s%s?%s".printf(API_BASE_URL, CLIQUES_REMOVE_FRIEND, params));
         free((void *) params);
         return msg;
