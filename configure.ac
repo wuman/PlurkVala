@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([libplurk], [0.1], [david@wu-man.com])
+AC_INIT([libplurk], [0.2], [david@wu-man.com])
 
 AM_MAINTAINER_MODE([enable])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
