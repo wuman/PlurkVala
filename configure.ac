@@ -38,5 +38,8 @@ AC_SUBST(PLURK_LIBS)
 AC_SUBST(PLURK_CFLAGS)
 AC_SUBST(VALA_PACKAGES)
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([
+                 Makefile
+                 plurk.pc
+                 ])
 AC_OUTPUT

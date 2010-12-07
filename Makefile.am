@@ -17,6 +17,9 @@ libplurk_la_CPPFLAGS = @PLURK_CFLAGS@
 libplurk_la_LIBADD = @PLURK_LIBS@
 libplurk_la_VALAFLAGS = @VALA_PACKAGES@
 
+pkgconfig_DATA = plurk.pc
+pkgconfigdir = @libdir@/pkgconfig
+
 dist-hook: plurk.h
 
 distcheck-hook: plurk.h
@@ -31,4 +34,4 @@ uninstall-local:
 plurk.h:
 	valac $(VALA_PACKAGES) $(srcdir)/*.vala -C -H $(srcdir)/plurk.h
 
-EXTRA_DIST = plurk.h
+EXTRA_DIST = plurk.h plurk.pc.in
