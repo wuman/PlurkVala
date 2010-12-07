@@ -334,6 +334,53 @@ public class PlurkVala.PlurkClient : GLib.Object {
         });
     }
 
+    public void create_clique(string clique_name) {
+        Message msg = PlurkApi.create_clique(clique_name);
+        session.queue_message(msg, (s, m) => {
+            bool success;
+            Error error = on_request_responded_cb(s, m, Action.CREATE_CLIQUE, out success);
+            HashTable<string, string> form_data = Soup.form_decode(m.uri.query);
+            string cliquename = form_data.lookup(PlurkApi.PARAM_CLIQUE_NAME);
+            clique_created(success ? null : error, cliquename);
+        });
+    }
+
+    public void rename_clique(string clique_name, string new_name) {
+        Message msg = PlurkApi.rename_clique(clique_name, new_name);
+        session.queue_message(msg, (s, m) => {
+            bool success;
+            Error error = on_request_responded_cb(s, m, Action.RENAME_CLIQUE, out success);
+            HashTable<string, string> form_data = Soup.form_decode(m.uri.query);
+            string cliquename = form_data.lookup(PlurkApi.PARAM_CLIQUE_NAME);
+            string newname = form_data.lookup(PlurkApi.PARAM_NEW_NAME);
+            clique_renamed(success ? null : error, cliquename, newname);
+        });
+    }
+
+    public void add_user_to_clique(string clique_name, string user_id) {
+        Message msg = PlurkApi.add_user_to_clique(clique_name, user_id);
+        session.queue_message(msg, (s, m) => {
+            bool success;
+            Error error = on_request_responded_cb(s, m, Action.ADD_USER_TO_CLIQUE, out success);
+            HashTable<string, string> form_data = Soup.form_decode(m.uri.query);
+            string cliquename = form_data.lookup(PlurkApi.PARAM_CLIQUE_NAME);
+            string userid = form_data.lookup(PlurkApi.PARAM_USER_ID);
+            user_added_to_clique(success ? null : error, cliquename, userid);
+        });
+    }
+
+    public void remove_user_from_clique(string clique_name, string user_id) {
+        Message msg = PlurkApi.remove_user_from_clique(clique_name, user_id);
+        session.queue_message(msg, (s, m) => {
+            bool success;
+            Error error = on_request_responded_cb(s, m, Action.REMOVE_USER_FROM_CLIQUE, out success);
+            HashTable<string, string> form_data = Soup.form_decode(m.uri.query);
+            string cliquename = form_data.lookup(PlurkApi.PARAM_CLIQUE_NAME);
+            string userid = form_data.lookup(PlurkApi.PARAM_USER_ID);
+            user_removed_from_clique(success ? null : error, cliquename, userid);
+        });
+    }
+
     public void get_own_profile() {
         Message msg = PlurkApi.get_own_profile();
         session.queue_message(msg, (s, m) => {
