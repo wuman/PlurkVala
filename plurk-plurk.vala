@@ -1,7 +1,7 @@
 using Json;
 using Soup;
 
-public class Plurk.Plurk : GLib.Object {
+public class Roguso.Plurk : GLib.Object {
 
     private static const string KEY_RESPONSES_SEEN = "responses_seen";
     private static const string KEY_QUALIFIER = "qualifier";

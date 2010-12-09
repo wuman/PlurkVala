@@ -1,6 +1,6 @@
 using Json;
 
-public class Plurk.UserList : GLib.Object {
+public class Roguso.UserList : GLib.Object {
 
     private HashTable<string, User> user_by_id = new HashTable<string, User>(GLib.str_hash, GLib.str_equal);
     private List<User> user_list = new List<User>();

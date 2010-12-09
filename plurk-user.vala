@@ -1,7 +1,7 @@
 using Json;
 using Soup;
 
-public class Plurk.User : GLib.Object {
+public class Roguso.User : GLib.Object {
 
     // Minimal data
     private static const string KEY_USER_ID = "id";

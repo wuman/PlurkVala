@@ -1,7 +1,7 @@
 using Json;
 using Soup;
 
-public class Plurk.Profile : GLib.Object {
+public class Roguso.Profile : GLib.Object {
 
     private static const string KEY_FANS_COUNT = "fans_count";
     private static const string KEY_ALERTS_COUNT = "alerts_count";
