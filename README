@@ -10,6 +10,8 @@ such as C++, C#, Python, Java, etc.
 PlurkVala is an event-based client library. All requests on the client
 are made asynchronously.
 
+The project homepage for PlurkVala is at https://code.google.com/p/plurkvala/.
+
 
 About Plurk
 -----------
