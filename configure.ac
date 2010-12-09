@@ -11,7 +11,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.
 AC_PROG_CC
-AM_PROG_VALAC([0.10.0])
+AM_PROG_VALAC([0.8.0])
 
 # Checks for libraries.
 AM_PATH_GLIB_2_0([2.24.0], [
