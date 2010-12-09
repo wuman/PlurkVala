@@ -1,4 +1,66 @@
 PlurkVala - A client library for Plurk written in Vala
+======================================================
 
-Check out the plurker project if you want to see some sample code that uses the PlurkVala library.
-http://code.google.com/p/plurker/
+PlurkVala is a client library for Plurk written in Vala.
+
+Implementing in Vala allows the library to be used just like any other C
+library. Moreover, it allows for easy bindings to other popular languages
+such as C++, C#, Python, Java, etc.
+
+PlurkVala is an event-based client library. All requests on the client
+are made asynchronously.
+
+
+About Plurk
+-----------
+
+Plurk is a twitter-like microblogging service that is super popular in many
+Asian countries. It differs from Twitter in that it offers more engaging
+conversations in the form of threaded responses. It also has several other
+interesting features such as karma, emoticons, and qualifiers.
+
+You can find out more about Plurk at http://www.plurk.com/faq.
+
+
+About Vala
+----------
+
+Vala is a fairly new language. The Vala compiler compiles .vala code into .c
+code and .h headers. It can also build binaries directly from .vala files. The
+Vala compiler is updated very frequently. If you are building the library
+yourself, you might want to upgrade your valac to the newest version at the
+community-maintained Vala PPA (https://launchpad.net/~vala-team/+archive/ppa).
+
+To find out more about Vala please visit http://live.gnome.org/Vala.
+
+
+Dependencies
+------------
+
+PlurkVala depends on the following libraries:
+
+  - libsoup-2.4
+  - json-glib-1.0
+
+PlurkVala has been tested to compile with valac-0.12.
+
+
+Sample Test Code
+----------------
+
+Check out the plurker project if you want to see some sample code that uses the 
+PlurkVala library. It is a command line interface Plurk client. The project
+homepage is located at http://code.google.com/p/plurker/.
+
+
+Installation
+------------
+
+See INSTALL.
+
+
+Copyright and Licensing
+-----------------------
+
+PlurkVala is released under the terms of the GNU Lesser General Public License
+version 2.1.  See COPYING.
