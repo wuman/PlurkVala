@@ -1,7 +1,7 @@
 using Soup;
 using Json;
 
-public class PlurkVala.PlurkClient : GLib.Object {
+public class Plurk.PlurkClient : GLib.Object {
 
     private static const string PLURKVALA_USER_AGENT = "PlurkVala 0.2";
     private static const int SESSION_MAX_CONNS = 1;

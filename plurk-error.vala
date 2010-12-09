@@ -1,4 +1,4 @@
-namespace PlurkVala {
+namespace Plurk {
 
     public static const Quark PLURK_ERROR_DOMAIN = Quark.from_string("plurk-error");
 

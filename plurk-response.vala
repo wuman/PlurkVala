@@ -1,7 +1,7 @@
 using Json;
 using Soup;
 
-public class PlurkVala.Response : GLib.Object {
+public class Plurk.Response : GLib.Object {
 
     private static const string KEY_RESPONSE_ID = "id";
     private static const string KEY_PLURK_ID = "plurk_id";

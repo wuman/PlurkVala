@@ -1,6 +1,6 @@
 using Json;
 
-public class PlurkVala.PlurkList : GLib.Object {
+public class Plurk.PlurkList : GLib.Object {
 
     private static const string KEY_PLURKS = "plurks";
     private static const string KEY_PLURK_USERS = "plurk_users";

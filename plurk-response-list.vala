@@ -1,6 +1,6 @@
 using Json;
 
-public class PlurkVala.ResponseList : GLib.Object {
+public class Plurk.ResponseList : GLib.Object {
 
     private static const string KEY_RESPONSES = "responses";
     private static const string KEY_FRIENDS = "friends";

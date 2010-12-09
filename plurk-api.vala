@@ -1,7 +1,7 @@
 using Soup;
 using Json;
 
-public class PlurkVala.PlurkApi : GLib.Object {
+public class Plurk.PlurkApi : GLib.Object {
 
     private string api_key;
 
